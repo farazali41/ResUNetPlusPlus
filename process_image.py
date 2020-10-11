@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 import os
 import random
 
@@ -178,8 +182,13 @@ if __name__ == '__main__':
     size = (256, 256)
     crop_size = (300, 300)
 
+<<<<<<< HEAD
     path = "./data/"
     dataset_name = "Kvasir-SEG"
+=======
+    path = "../../../ml_dataset/"
+    dataset_name = "kvasir_segmentation_dataset"
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
     full_path = os.path.join(path, dataset_name)
 
     new_path = "new_data/"
@@ -205,8 +214,13 @@ if __name__ == '__main__':
 
     len_ids = len(images)
     train_size = int((80/100)*len_ids)
+<<<<<<< HEAD
     valid_size = int((10/100)*len_ids)          ## Here 10 is the percent of images used for validation
     test_size = int((10/100)*len_ids)           ## Here 10 is the percent of images used for testing
+=======
+    valid_size = int((10/100)*len_ids)		## Here 10 is the percent of images used for validation
+    test_size = int((10/100)*len_ids)		## Here 10 is the percent of images used for testing
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 
     train_images, test_images = train_test_split(images, test_size=test_size, random_state=42)
     train_masks, test_masks = train_test_split(masks, test_size=test_size, random_state=42)
@@ -342,4 +356,8 @@ if __name__ == '__main__':
                 msk = all_masks[j]
                 path = [img_path, msk_path]
 
+<<<<<<< HEAD
                 save_image(img, msk, path)
+=======
+                save_image(img, msk, path)
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5

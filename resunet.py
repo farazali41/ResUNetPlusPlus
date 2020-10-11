@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 """
 ResUNet architecture in Keras TensorFlow
 """
@@ -45,7 +48,11 @@ class ResUnet:
 
             ## Pooling
             if pool == True:
+<<<<<<< HEAD
                 x = MaxPooling2D((2, 2), (2, 2))(x1)
+=======
+                x = MaxPooling2D((2, 2), (2, 2))(x2)
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
                 return c, x
             else:
                 return c
@@ -92,4 +99,8 @@ class ResUnet:
 
         ## Model
         model = Model(inputs, outputs)
+<<<<<<< HEAD
         return model
+=======
+        return model
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 """
 ResUNet architecture in Keras TensorFlow
 """
@@ -13,12 +16,16 @@ from tensorflow.keras.models import Model
 def squeeze_excite_block(inputs, ratio=8):
     init = inputs
     channel_axis = -1
+<<<<<<< HEAD
     print("type of inputs pass to stem_block: ",type(init))
     print(init)
     xy = init.shape[channel_axis]
     print(type(xy))
     print(xy)
     filters = xy#.values
+=======
+    filters = init.shape[channel_axis].value
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
     se_shape = (1, 1, filters)
 
     se = GlobalAveragePooling2D()(init)
@@ -44,8 +51,11 @@ def stem_block(x, n_filter, strides):
 
     ## Add
     x = Add()([x, s])
+<<<<<<< HEAD
     print("type of x passed to squeeze_excite_block: ",x)
     print(x)
+=======
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
     x = squeeze_excite_block(x)
     return x
 
@@ -93,9 +103,14 @@ def attetion_block(g, x):
         g: Output of Parallel Encoder block
         x: Output of Previous Decoder block
     """
+<<<<<<< HEAD
     xy = x.shape[-1]
     print(xy)
     filters = xy#.value
+=======
+
+    filters = x.shape[-1].value
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 
     g_conv = BatchNormalization()(g)
     g_conv = Activation("relu")(g_conv)
@@ -158,4 +173,8 @@ class ResUnetPlusPlus:
 
         ## Model
         model = Model(inputs, outputs)
+<<<<<<< HEAD
         return model
+=======
+        return model
+>>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
