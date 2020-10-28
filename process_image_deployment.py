@@ -184,7 +184,8 @@ if __name__ == '__main__':
 
     new_path = "new_data/"
     create_dir(new_path)
-    new_full_path = os.path.join(new_path, dataset_name)
+    dataset_name1 = "Kvasir-SEG_deployment"
+    new_full_path = os.path.join(new_path, dataset_name1)
 
     train_path = os.path.join(new_full_path, "train")
     valid_path = os.path.join(new_full_path, "valid")
@@ -204,44 +205,43 @@ if __name__ == '__main__':
     masks.sort()
 
     len_ids = len(images)
-    train_size = int((80/100)*len_ids)
+    train_size = int((90/100)*len_ids)
     valid_size = int((10/100)*len_ids)          ## Here 10 is the percent of images used for validation
-    test_size = int((10/100)*len_ids)           ## Here 10 is the percent of images used for testing
+    test_size = int((0/100)*len_ids)           ## Here 10 is the percent of images used for testing
 
-    train_images, test_images = train_test_split(images, test_size=test_size, random_state=42)
-    train_masks, test_masks = train_test_split(masks, test_size=test_size, random_state=42)
+    # train_images, test_images = train_test_split(images, test_size=test_size, random_state=42)
+    # train_masks, test_masks = train_test_split(masks, test_size=test_size, random_state=42)
 
-    train_images, valid_images = train_test_split(train_images, test_size=test_size, random_state=42)
-    train_masks, valid_masks = train_test_split(train_masks, test_size=test_size, random_state=42)
+    train_images, valid_images = train_test_split(images, test_size=0.1, random_state=42)
+    train_masks, valid_masks = train_test_split(masks, test_size=0.1, random_state=42)
 
     print("Total Size: ", len_ids)
     print("Training Size: ", train_size)
     print("Validation Size: ", valid_size)
-    print("Testing Size: ", test_size)
+
+    # ## Testing images and masks
+    # for idx, p in tqdm(enumerate(test_images), total=len(test_images)):
+    #     ## Path
+    #     name = p.split("/")[-1].split(".")[0]
+    #     image_path = test_images[idx]
+    #     mask_path = test_masks[idx]
+
+    #     if os.path.exists(image_path) and os.path.exists(mask_path):
+    #         image = read_image(image_path)
+    #         mask = read_image(mask_path, grayscale=True)
+
+    #         new_image_path = os.path.join(new_full_path, "test", "images/")
+    #         new_mask_path = os.path.join(new_full_path, "test", "masks/")
+
+    #         image = resize(image, size)
+    #         mask = resize(mask, size)
+
+    #         img_path = new_image_path + str(name) + ".jpg"
+    #         mask_path = new_mask_path + str(name) + ".jpg"
+    #         tmp_path = [img_path, mask_path]
+    #         save_image(image, mask, tmp_path)
 
     ## Validation images and masks
-    for idx, p in tqdm(enumerate(test_images), total=len(test_images)):
-        ## Path
-        name = p.split("/")[-1].split(".")[0]
-        image_path = test_images[idx]
-        mask_path = test_masks[idx]
-
-        if os.path.exists(image_path) and os.path.exists(mask_path):
-            image = read_image(image_path)
-            mask = read_image(mask_path, grayscale=True)
-
-            new_image_path = os.path.join(new_full_path, "test", "images/")
-            new_mask_path = os.path.join(new_full_path, "test", "masks/")
-
-            image = resize(image, size)
-            mask = resize(mask, size)
-
-            img_path = new_image_path + str(name) + ".jpg"
-            mask_path = new_mask_path + str(name) + ".jpg"
-            tmp_path = [img_path, mask_path]
-            save_image(image, mask, tmp_path)
-
-    ## Testing images and masks
     for idx, p in tqdm(enumerate(valid_images), total=len(valid_images)):
         ## Path
         name = p.split("/")[-1].split(".")[0]

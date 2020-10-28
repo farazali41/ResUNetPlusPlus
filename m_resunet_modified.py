@@ -1,4 +1,3 @@
-
 """
 ResUNet architecture in Keras TensorFlow
 """
@@ -9,6 +8,8 @@ import cv2
 import tensorflow as tf
 from tensorflow.keras.layers import *
 from tensorflow.keras.models import Model
+from keras.layers import SeparableConv2D
+# from keras.layers import ReLu
 
 def squeeze_excite_block(inputs, ratio=8):
     init = inputs
@@ -84,9 +85,87 @@ def aspp_block(x, num_filters, rate_scale=1):
     x4 = Conv2D(num_filters, (3, 3), padding="SAME")(x)
     x4 = BatchNormalization()(x4)
 
-    y = Add()([x1, x2, x3, x4])
+    x5 = Conv2D(num_filters, (3, 3), dilation_rate=(24 * rate_scale, 24 * rate_scale), padding="SAME")(x)
+    x5 = BatchNormalization()(x5)
+
+    y = Add()([x1, x2, x3,x5, x4])
     y = Conv2D(num_filters, (1, 1), padding="SAME")(y)
     return y
+
+
+def deep_aspp_block(x, num_filters, rate_scale=1):
+  # x1 = ZeroPadding2D(padding=(6 * rate_scale,6 * rate_scale))(x)
+  x1 = SeparableConv2D(num_filters , (3,3), strides = (1,1) , padding = 'same', dilation_rate = (1,1) , activation = None)(x)
+  x1 = BatchNormalization()(x1)
+  x1 = ReLU()(x1)
+  # x1 = Reshape((32,32,256))(x1)
+
+    # x1 = Conv2D(num_filters, (3, 3), dilation_rate=(6 * rate_scale, 6 * rate_scale), padding="SAME")(x)
+    # x1 = BatchNormalization()(x1)
+
+  # x2 = Conv2D(num_filters, (3, 3), dilation_rate=(12 * rate_scale, 12 * rate_scale), padding="SAME")(x)
+  # x2 = BatchNormalization()(x2)
+
+  # x3 = Conv2D(num_filters, (3, 3), dilation_rate=(18 * rate_scale, 18 * rate_scale), padding="SAME")(x)
+  # x3 = BatchNormalization()(x3)
+  # x2 = ZeroPadding2D(padding=(12 * rate_scale,12 * rate_scale))(x)
+  x2 = SeparableConv2D(num_filters , (3,3), strides = (1,1) , padding = 'same', dilation_rate = (1,1) , activation = None)(x)
+  x2 = BatchNormalization()(x2)
+  x2 = ReLU()(x2)
+  # x2 = Reshape((32,32,256))(x2)
+
+  # x3 = ZeroPadding2D(padding=(18 * rate_scale,18 * rate_scale))(x)
+  x3 = SeparableConv2D(num_filters , (3,3), strides = (1,1) , padding = 'same', dilation_rate = (1,1) , activation = None)(x)
+  x3 = BatchNormalization()(x3)
+  x3 = ReLU()(x3)
+  # x3 = Reshape((32,32,256))(x3)
+
+  x4 = Conv2D(num_filters, (3, 3), padding="SAME")(x)
+  x4 = BatchNormalization()(x4)
+
+  y = Add()([x1, x2, x3, x4])
+  y = Conv2D(num_filters, (1, 1), padding="SAME")(y)
+  return y
+
+def daspp_block(x, num_filters, rate_scale=1):
+  print("x shape: ", x.shape)
+
+  x0 = SeparableConv2D(num_filters, (1, 1), padding="SAME")(x)
+  x0 = BatchNormalization()(x0)
+  print("x0 shape: ", x0.shape)
+
+  x1 = SeparableConv2D(num_filters, (3, 3), dilation_rate=(3 * rate_scale, 3 * rate_scale), padding="SAME")(x)
+  # x1 = ReLu()(x1)
+  x1 = tf.keras.layers.Activation(tf.nn.relu)(x1)
+  x1 = BatchNormalization()(x1)
+  x1 = Conv2D(num_filters, (3, 3), padding="SAME")(x1)
+  print("x1 shape: ", x1.shape)
+
+  x2 = SeparableConv2D(num_filters, (3, 3), dilation_rate=(6 * rate_scale, 6 * rate_scale), padding="SAME")(x)
+  # x2 = ReLu()(x2)
+  x2 = tf.keras.layers.Activation(tf.nn.relu)(x2)
+  x2 = BatchNormalization()(x2)
+  x2 = Conv2D(num_filters, (3, 3), padding="SAME")(x2)
+  print("x2 shape: ", x2.shape)
+
+  x3 = SeparableConv2D(num_filters, (3, 3), dilation_rate=(9 * rate_scale, 9 * rate_scale), padding="SAME")(x)
+  # x3 = ReLu()(x3)
+  x3 = tf.keras.layers.Activation(tf.nn.relu)(x3)
+  x3 = BatchNormalization()(x3)
+  x3 = Conv2D(num_filters, (3, 3), padding="SAME")(x3)
+  print("x3 shape: ", x3.shape)
+  
+
+  x4 = AveragePooling2D(pool_size=(2, 2), padding= 'same')(x)
+  x4 = Conv2D(16, (1, 1), padding="SAME")(x4)
+  x4 = UpSampling2D(size=(2, 2))(x4)
+  print("x4 shape: ", x4.shape)
+
+  # y = Add()([x0 , x1, x2, x3, x4])
+  # y = Add()([x0 , x1, x2, x3])
+  y = Concatenate()([x , x0 , x1, x2, x3, x4])
+  y = Conv2D(num_filters, (1, 1), padding="SAME")(y)
+  return y
 
 def attetion_block(g, x):
     """
@@ -133,7 +212,7 @@ class ResUnetPlusPlus:
         c4 = resnet_block(c3, n_filters[3], strides=2)
 
         ## Bridge
-        b1 = aspp_block(c4, n_filters[4])
+        b1 = daspp_block(c4, n_filters[4])
 
         ## Decoder
         d1 = attetion_block(c3, b1)
@@ -152,7 +231,7 @@ class ResUnetPlusPlus:
         d3 = resnet_block(d3, n_filters[1])
 
         ## output
-        outputs = aspp_block(d3, n_filters[0])
+        outputs = daspp_block(d3, n_filters[0])
         outputs = Conv2D(1, (1, 1), padding="same")(outputs)
         outputs = Activation("sigmoid")(outputs)
 
