@@ -14,3 +14,14 @@ def dice_coef(y_true, y_pred):
 
 def dice_loss(y_true, y_pred):
     return 1.0 - dice_coef(y_true, y_pred)
+
+def miou_coef(y_true, y_pred):
+  y_true_f = tf.keras.layers.Flatten()(y_true)
+  y_pred_f = tf.keras.layers.Flatten()(y_pred)
+  intersection = tf.reduce_sum(y_true_f * y_pred_f)
+  union = tf.reduce_sum(y_true_f) + tf.reduce_sum(y_pred_f)-intersection
+  iou = (intersection + smooth) / (union + smooth)
+  return iou
+
+def miou_loss(y_true, y_pred):
+    return 1.0 - miou_coef(y_true, y_pred)
