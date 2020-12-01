@@ -1,5 +1,3 @@
-### Model Loading
-
 import os
 import numpy as np
 import cv2
@@ -8,23 +6,20 @@ import tensorflow as tf
 from tensorflow.keras.metrics import Precision, Recall, MeanIoU
 from tensorflow.keras.optimizers import Adam, Nadam, SGD
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, CSVLogger
-from tensorflow.keras.utils import CustomObjectScope
-from tensorflow.keras.models import load_model
-
-
 
 from data_generator import DataGen
 from unet import Unet
 from resunet import ResUnet
-from m_resunet_modified import ResUnetPlusPlus
+# from m_resunet_modified import ResUnetPlusPlus
+from resunet_pp_modified import ResUnetPlusPlus
 from metrics import dice_coef, dice_loss, miou_coef, miou_loss
 
 
 if __name__ == "__main__":
     ## Path
     file_path = "files/"
-    model_path = "files/sepv_conv_miou.h5"
-    model_name = "sepv_conv_miou"
+    model_path = "files/unet_miou.h5"
+    model_name = "unet_miou"
 
     ## Create files folder
     try:
@@ -54,7 +49,7 @@ if __name__ == "__main__":
     image_size = 256
     batch_size = 8
     lr = 1e-4
-    epochs = 25
+    epochs = 10
 
     train_steps = len(train_image_paths)//batch_size
     valid_steps = len(valid_image_paths)//batch_size
@@ -66,28 +61,23 @@ if __name__ == "__main__":
     valid_gen = DataGen(image_size, valid_image_paths, valid_mask_paths, batch_size=batch_size)
 
     ## Unet
-    # arch = Unet(input_size=image_size)
-    # model = arch.build_model()
+    arch = Unet(input_size=image_size)
+    model = arch.build_model()
 
     ## ResUnet
     # arch = ResUnet(input_size=image_size)
     # model = arch.build_model()
 
-    # ## ResUnet++
+    ## ResUnet++
     # arch = ResUnetPlusPlus(input_size=image_size)
     # model = arch.build_model()
 
-    # optimizer = Nadam(lr)
-    # # metrics = [Recall(), Precision(), dice_coef, MeanIoU(num_classes=2)]
-    # # model.compile(loss=dice_loss, optimizer=optimizer, metrics=metrics)
-    # metrics = [Recall(), Precision(), dice_coef, MeanIoU(num_classes=2),miou_coef]
-    # model.compile(loss=miou_loss, optimizer=optimizer, metrics=metrics)
-    # # model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), optimizer=optimizer, metrics=metrics)
-
-    ## Model
-    with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
-        model = load_model(model_path)
-    
+    optimizer = Nadam(lr)
+    # metrics = [Recall(), Precision(), dice_coef, MeanIoU(num_classes=2)]
+    # model.compile(loss=dice_loss, optimizer=optimizer, metrics=metrics)
+    metrics = [Recall(), Precision(), dice_coef, MeanIoU(num_classes=2),miou_coef]
+    model.compile(loss=miou_loss, optimizer=optimizer, metrics=metrics)
+    # model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), optimizer=optimizer, metrics=metrics)
 
     csv_logger = CSVLogger(f"{file_path}{model_name}_{batch_size}_{epochs}.csv", append=False)
     checkpoint = ModelCheckpoint(model_path, verbose=1, save_best_only=True)
@@ -101,4 +91,4 @@ if __name__ == "__main__":
             validation_steps=valid_steps,
             epochs=epochs,
             callbacks=callbacks)
-# !python3 resume_training.py
+# !python3 run_modified.py

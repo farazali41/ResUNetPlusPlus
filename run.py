@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 import os
 import numpy as np
 import cv2
@@ -17,10 +13,7 @@ from resunet import ResUnet
 from m_resunet import ResUnetPlusPlus
 from metrics import dice_coef, dice_loss
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 if __name__ == "__main__":
     ## Path
     file_path = "files/"
@@ -32,13 +25,8 @@ if __name__ == "__main__":
     except:
         pass
 
-<<<<<<< HEAD
     train_path = "new_data/Kvasir-SEG/train/"
     valid_path = "new_data/Kvasir-SEG/valid/"
-=======
-    train_path = "new_data/kvasir_segmentation_dataset/train/"
-    valid_path = "new_data/kvasir_segmentation_dataset/valid/"
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 
     ## Training
     train_image_paths = glob(os.path.join(train_path, "images", "*"))
@@ -59,11 +47,7 @@ if __name__ == "__main__":
     image_size = 256
     batch_size = 8
     lr = 1e-4
-<<<<<<< HEAD
     epochs = 25
-=======
-    epochs = 3
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 
     train_steps = len(train_image_paths)//batch_size
     valid_steps = len(valid_image_paths)//batch_size
@@ -73,21 +57,12 @@ if __name__ == "__main__":
     valid_gen = DataGen(image_size, valid_image_paths, valid_mask_paths, batch_size=batch_size)
 
     ## Unet
-<<<<<<< HEAD
     # arch = Unet(input_size=image_size)
     # model = arch.build_model()
 
     ## ResUnet
     # arch = ResUnet(input_size=image_size)
     # model = arch.build_model()
-=======
-    arch = Unet(input_size=image_size)
-    model = arch.build_model()
-
-    ## ResUnet
-    #arch = ResUnet(input_size=image_size)
-    #model = arch.build_model()
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 
     ## ResUnet++
     arch = ResUnetPlusPlus(input_size=image_size)
@@ -95,11 +70,7 @@ if __name__ == "__main__":
 
     optimizer = Nadam(lr)
     metrics = [Recall(), Precision(), dice_coef, MeanIoU(num_classes=2)]
-<<<<<<< HEAD
     model.compile(loss=dice_loss, optimizer=optimizer, metrics=metrics)
-=======
-    model.compile(loss="dice_loss", optimizer=optimizer, metrics=metrics)
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 
     csv_logger = CSVLogger(f"{file_path}unet_{batch_size}.csv", append=False)
     checkpoint = ModelCheckpoint(model_path, verbose=1, save_best_only=True)
@@ -113,7 +84,4 @@ if __name__ == "__main__":
             validation_steps=valid_steps,
             epochs=epochs,
             callbacks=callbacks)
-<<<<<<< HEAD
 # !python3 run.py
-=======
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5

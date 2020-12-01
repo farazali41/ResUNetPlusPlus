@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 import os
 import numpy as np
 import cv2
@@ -11,7 +7,7 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.utils import CustomObjectScope
 from data_generator import *
-from metrics import dice_coef, dice_loss
+from metrics import dice_coef, dice_loss, miou_coef, miou_loss
 
 def mask_to_3d(mask):
     mask = np.squeeze(mask)
@@ -20,15 +16,9 @@ def mask_to_3d(mask):
     return mask
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    model_path = "files/unet.h5"
+    model_path = "files/sepv_conv_miou.h5"
     save_path = "result"
     test_path = "new_data/Kvasir-SEG/test/"
-=======
-    model_path = "files/resunetplusplus.h5"
-    save_path = "result"
-    test_path = "new_data/kvasir_segmentation_dataset/test/"
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
 
     image_size = 256
     batch_size = 1
@@ -45,7 +35,7 @@ if __name__ == "__main__":
         pass
 
     ## Model
-    with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef}):
+    with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
         model = load_model(model_path)
 
     ## Test
@@ -69,10 +59,5 @@ if __name__ == "__main__":
 
         all_images = [image * 255, sep_line, mask * 255, sep_line, predict_mask]
         cv2.imwrite(f"{save_path}/{i}.png", np.concatenate(all_images, axis=1))
-<<<<<<< HEAD
 # !python3 infer.py
 # https://colab.research.google.com/drive/1TTtNwEF4TjWQoXdvjpWky-dnXN1zFu13
-=======
-
-    print("Test image generation complete")
->>>>>>> 31b184a15bc9c755319705139a9ad13d1faaace5
