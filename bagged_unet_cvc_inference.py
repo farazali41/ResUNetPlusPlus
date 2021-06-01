@@ -71,18 +71,38 @@ TEST_DATASET_PATH = "new_data/CVC-ClinicDB/test/images"
 GROUND_TRUTH_PATH = "new_data/CVC-ClinicDB/test/masks/"
 # MASK_PATH = "./mask"
 PREDICTED_MASK_PATH = "new_data/CVC-ClinicDB/test/predicted_masks"
-Results = "new_data/bagging_results"
+Results = "new_data/bagging_unet_results"
 model_path = "files_before_tpu/miou.h5"
 
 # Load Keras model
 with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
-  resunet_cvc = tf.keras.models.load_model("files/models/resunetpp_cvc_png.h5")
+  unet_cvc28 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc28.h5")
 
 with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
-  sepv_conv_cvc = tf.keras.models.load_model("files/models/sepv_conv_cvc_png.h5")
+  unet_cvc27 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc27.h5")
 
 with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
-  daspp_cvc = tf.keras.models.load_model("files/models/daspp_cvc.h5")
+  unet_cvc26 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc26.h5")
+
+with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
+  unet_cvc25 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc25.h5")
+
+with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
+  unet_cvc24 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc24.h5")
+
+with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
+  unet_cvc23 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc23.h5")
+
+with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
+  unet_cvc22 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc22.h5")
+
+with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
+  unet_cvc21 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc21.h5")
+
+with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef}):
+  unet_cvc20 = tf.keras.models.load_model("files/models/bagged_unet_cvc/unet_cvc20.h5")
+
+
 
 ## List for each evaluation metrics
 time_taken = []
@@ -115,9 +135,15 @@ for image_name in os.listdir(TEST_DATASET_PATH):
     start_time = time.time()
 
     ## Prediction
-    mask1 = resunet_cvc.predict(np.expand_dims(image, axis=0))[0]
-    mask2 = sepv_conv_cvc.predict(np.expand_dims(image, axis=0))[0]
-    mask3 = daspp_cvc.predict(np.expand_dims(image, axis=0))[0]
+    mask1 = unet_cvc20.predict(np.expand_dims(image, axis=0))[0]
+    mask2 = unet_cvc21.predict(np.expand_dims(image, axis=0))[0]
+    mask3 = unet_cvc22.predict(np.expand_dims(image, axis=0))[0]
+    mask4 = unet_cvc23.predict(np.expand_dims(image, axis=0))[0]
+    mask5 = unet_cvc24.predict(np.expand_dims(image, axis=0))[0]
+    mask6 = unet_cvc25.predict(np.expand_dims(image, axis=0))[0]
+    mask7 = unet_cvc26.predict(np.expand_dims(image, axis=0))[0]
+    mask8 = unet_cvc27.predict(np.expand_dims(image, axis=0))[0]
+    mask9 = unet_cvc28.predict(np.expand_dims(image, axis=0))[0]
 
     # End timer
     end_time = time.time() - start_time
@@ -137,9 +163,22 @@ for image_name in os.listdir(TEST_DATASET_PATH):
     mask2 = mask2.astype(np.float32)
     mask3 = mask3 > 0.5
     mask3 = mask3.astype(np.float32)
+    mask4 = mask4 > 0.5
+    mask4 = mask4.astype(np.float32)
+    mask5 = mask5 > 0.5
+    mask5 = mask5.astype(np.float32)
+    mask6 = mask6 > 0.5
+    mask6 = mask6.astype(np.float32)
+    mask7 = mask7 > 0.5
+    mask7 = mask7.astype(np.float32)
+    mask8 = mask8 > 0.5
+    mask8 = mask8.astype(np.float32)
+    mask9 = mask9 > 0.5
+    mask9 = mask9.astype(np.float32)
 
-    ## Apply Bagging Approach on 3 models
-    mask = np.round((mask1+mask2+mask3)/3, decimals = 0)
+
+    ## Apply majority voting on 9 models
+    mask = np.round((mask1+mask2+mask3+mask4+mask5+mask6+mask7+mask8+mask9)/9, decimals = 0)
 
     ## Evaluate Metrics
     loss.append(miou_loss(ground_truth_mask, mask))
@@ -156,26 +195,28 @@ for image_name in os.listdir(TEST_DATASET_PATH):
     mask = mask * 255.0
     mask = cv2.resize(mask, (H, W))
 
-    ## Add Channels to mask to append it with original image
-    mask1 = mask_to_3d(mask1)
-    mask2 = mask_to_3d(mask2)
-    mask3 = mask_to_3d(mask3)
-    mask = mask_to_3d(mask)
-    ground_truth_mask = mask_to_3d(ground_truth_mask)
+## Commenting from here to prevent disk usuage
+    # ## Add Channels to mask to append it with original image
+    # mask1 = mask_to_3d(mask1)
+    # mask2 = mask_to_3d(mask2)
+    # mask3 = mask_to_3d(mask3)
+    # mask = mask_to_3d(mask)
+    # ground_truth_mask = mask_to_3d(ground_truth_mask)
 
-    mask_path = os.path.join(PREDICTED_MASK_PATH, image_name)
-    cv2.imwrite(mask_path, mask)
+    # mask_path = os.path.join(PREDICTED_MASK_PATH, image_name)
+    # cv2.imwrite(mask_path, mask)
 
-    ## Order : original image, ground_truth, predict_mask1 , predict_mask2 , predict_mask3 , predict_mask_bagging
-    all_images = [image * 255, sep_line, ground_truth_mask * 255, sep_line, mask1 * 255 , sep_line , mask2 * 255 , sep_line , mask3 * 255 , sep_line , mask]
-    # print("++++++++++++++++++++++++++++++++++++")
-    # print(image.shape)
-    # print(ground_truth_mask.shape)
-    # print(mask1.shape)
-    # print(mask2.shape)
-    # print(mask3.shape)
-    # print(mask.shape)
-    # cv2.imwrite(f"{Results}/{image_name}.png", np.concatenate(all_images, axis=1))
+    # ## Order : original image, ground_truth, predict_mask1 , predict_mask2 , predict_mask3 , predict_mask_bagging
+    # all_images = [image * 255, sep_line, ground_truth_mask * 255, sep_line, mask1 * 255 , sep_line , mask2 * 255 , sep_line , mask3 * 255 , sep_line , mask]
+    # # print("++++++++++++++++++++++++++++++++++++")
+    # # print(image.shape)
+    # # print(ground_truth_mask.shape)
+    # # print(mask1.shape)
+    # # print(mask2.shape)
+    # # print(mask3.shape)
+    # # print(mask.shape)
+    # # cv2.imwrite(f"{Results}/{image_name}.png", np.concatenate(all_images, axis=1))
+## Commenting till here to prevent disk usuage
 
 
 ## Print mean of evaluation metrics

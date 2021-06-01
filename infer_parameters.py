@@ -10,7 +10,7 @@ from tensorflow.keras.utils import CustomObjectScope
 from data_generator import *
 from metrics import dice_coef, dice_loss, miou_coef, miou_loss
 from segmentation_metrics import dice_coe,dice_hard_coe,iou_coe
-from weighted_hausdorff_loss import weighted_hausdorff_distance
+# from weighted_hausdorff_loss import weighted_hausdorff_distance
 from tensorflow.keras.metrics import Precision, Recall, MeanIoU
 from tensorflow.keras.optimizers import Adam, Nadam, SGD , RMSprop
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     model_path = sys.argv[1]
     
     save_path = "result"
-    test_path = "new_data/Kvasir-SEG/test/"
+    test_path = "new_data/CVC-ClinicDB/test/"
 
     image_size = 256
     batch_size = 1
@@ -50,14 +50,15 @@ if __name__ == "__main__":
 
     ## Model
     with CustomObjectScope({'dice_loss': dice_loss, 'dice_coef': dice_coef,'miou_loss':miou_loss,'miou_coef':miou_coef,
-        'dice_coe':dice_coe,'dice_hard_coe':dice_hard_coe,'iou_coe':iou_coe, 'weighted_hausdorff_distance':weighted_hausdorff_distance
+        'dice_coe':dice_coe,'dice_hard_coe':dice_hard_coe,'iou_coe':iou_coe#, 'weighted_hausdorff_distance':weighted_hausdorff_distance
     }):
         model = load_model(model_path)
     
     ## Added for '<' not supported between instances of 'function' and 'str'
     lr = 1e-4
     optimizer = Nadam(lr)
-    metrics = [Recall(), Precision(), dice_coef, MeanIoU(num_classes=2),miou_coef,dice_coe,dice_hard_coe,iou_coe,weighted_hausdorff_distance]
+    metrics = [Recall(), Precision(), dice_coef, MeanIoU(num_classes=2),miou_coef,dice_coe,dice_hard_coe,iou_coe#,weighted_hausdorff_distance
+    ]
     model.compile(loss=miou_loss, optimizer=optimizer, metrics=metrics)
     print("model compiled successfully")
 
